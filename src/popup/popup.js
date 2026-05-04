@@ -1,5 +1,6 @@
 const elements = {
   pageTitle: document.querySelector("#pageTitle"),
+  openFullPage: document.querySelector("#openFullPage"),
   settingsToggle: document.querySelector("#settingsToggle"),
   settingsPanel: document.querySelector("#settingsPanel"),
   provider: document.querySelector("#provider"),
@@ -27,16 +28,28 @@ const elements = {
 };
 
 let currentResult = null;
+const searchParams = new URLSearchParams(location.search);
+const isFullPage = searchParams.get("view") === "full";
+const sourceTabIdFromUrl = Number(searchParams.get("sourceTabId"));
+let sourceTabId = Number.isInteger(sourceTabIdFromUrl) ? sourceTabIdFromUrl : null;
 
 init();
 
 async function init() {
+  document.body.classList.toggle("full-page", isFullPage);
   bindEvents();
   await loadSettings();
   await loadCurrentTabTitle();
 }
 
 function bindEvents() {
+  elements.openFullPage.addEventListener("click", async () => {
+    const tabId = await getSourceTabId();
+    await chrome.tabs.create({
+      url: chrome.runtime.getURL(`src/popup/popup.html?view=full&sourceTabId=${tabId}`)
+    });
+  });
+
   elements.settingsToggle.addEventListener("click", () => {
     elements.settingsPanel.hidden = !elements.settingsPanel.hidden;
     elements.settingsToggle.setAttribute(
@@ -61,8 +74,30 @@ function bindEvents() {
 }
 
 async function loadCurrentTabTitle() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tab = await getSourceTab();
   elements.pageTitle.textContent = tab?.title || "Current page";
+}
+
+async function getSourceTab() {
+  if (sourceTabId) {
+    try {
+      return await chrome.tabs.get(sourceTabId);
+    } catch {
+      sourceTabId = null;
+    }
+  }
+
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  sourceTabId = tab?.id || null;
+  return tab;
+}
+
+async function getSourceTabId() {
+  const tab = await getSourceTab();
+  if (!tab?.id) {
+    throw new Error("No active page tab found.");
+  }
+  return tab.id;
 }
 
 async function loadSettings() {
@@ -125,7 +160,8 @@ async function summarize(forceRefresh) {
       type: "SUMMARIZE_PAGE",
       options: {
         forceRefresh,
-        summaryStyle: elements.summaryStyle.value
+        summaryStyle: elements.summaryStyle.value,
+        sourceTabId: await getSourceTabId()
       }
     });
 
@@ -189,8 +225,8 @@ async function highlightSummary() {
   }
 
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    const response = await chrome.tabs.sendMessage(tab.id, {
+    const tabId = await getSourceTabId();
+    const response = await chrome.tabs.sendMessage(tabId, {
       type: "HIGHLIGHT_KEY_PHRASES",
       phrases: currentResult.summary.keyPhrases
     });
@@ -210,8 +246,8 @@ async function clearState() {
   }
 
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    await chrome.tabs.sendMessage(tab.id, { type: "CLEAR_HIGHLIGHTS" });
+    const tabId = await getSourceTabId();
+    await chrome.tabs.sendMessage(tabId, { type: "CLEAR_HIGHLIGHTS" });
   } catch {
     // The content script may not be active yet.
   }

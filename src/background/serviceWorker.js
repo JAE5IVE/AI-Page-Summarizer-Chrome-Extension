@@ -29,7 +29,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 async function summarizeCurrentPage(options) {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tab = await getTargetTab(options.sourceTabId);
   if (!tab?.id || !isSummarizableUrl(tab.url)) {
     throw new Error("Open a regular web page before summarizing.");
   }
@@ -57,6 +57,19 @@ async function summarizeCurrentPage(options) {
   await putCachedSummary(cacheKey, summary);
 
   return { page, summary, cached: false };
+}
+
+async function getTargetTab(sourceTabId) {
+  if (Number.isInteger(sourceTabId)) {
+    try {
+      return await chrome.tabs.get(sourceTabId);
+    } catch {
+      throw new Error("The original page tab is no longer available.");
+    }
+  }
+
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  return tab;
 }
 
 async function ensureContentScript(tabId) {

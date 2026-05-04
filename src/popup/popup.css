@@ -40,6 +40,11 @@ body {
   letter-spacing: 0;
 }
 
+body.full-page {
+  width: 100%;
+  min-height: 100vh;
+}
+
 button,
 input,
 select {
@@ -63,11 +68,23 @@ select:focus-visible {
   overflow: auto;
 }
 
+.full-page .popup-shell {
+  width: min(920px, calc(100vw - 32px));
+  min-height: 100vh;
+  max-height: none;
+  margin: 0 auto;
+}
+
 .page-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .eyebrow {
@@ -86,12 +103,20 @@ p {
 
 h1 {
   display: -webkit-box;
-  max-width: 290px;
+  max-width: 260px;
   overflow: hidden;
   font-size: 18px;
   line-height: 1.25;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+
+.full-page h1 {
+  max-width: min(720px, calc(100vw - 170px));
+}
+
+.full-page #openFullPage {
+  display: none;
 }
 
 h2 {
