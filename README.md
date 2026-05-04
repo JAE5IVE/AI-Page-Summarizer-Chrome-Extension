@@ -117,6 +117,18 @@ Important trade-off: a browser extension cannot perfectly hide a user-provided A
 
 No build step is required. Edit the source files, then click **Reload** on the extension in `chrome://extensions`.
 
+## Troubleshooting
+
+### Gemini quota limit reached / HTTP 429
+
+This means Google rejected the request because the API key or project has hit a quota/rate limit. Try one of these:
+
+- Wait a while and summarize again.
+- Use a different Google AI Studio API key.
+- Check that the Google AI project has quota/billing enabled.
+- Try a lighter model if your account supports it.
+- Switch the extension to **Custom secure proxy** and route requests through your own backend/provider.
+
 To inspect errors:
 
 1. Go to `chrome://extensions`.

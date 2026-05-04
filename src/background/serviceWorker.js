@@ -109,7 +109,7 @@ async function callProxyProvider(page, settings, options) {
   });
 
   if (!response.ok) {
-    throw new Error(`AI proxy failed with HTTP ${response.status}.`);
+    throw new Error(formatHttpError("AI proxy", response, await safeResponseText(response)));
   }
 
   const data = await response.json();
@@ -139,7 +139,7 @@ async function callGeminiProvider(page, settings, options) {
 
   if (!response.ok) {
     const details = await safeResponseText(response);
-    throw new Error(`Gemini request failed with HTTP ${response.status}. ${details}`);
+    throw new Error(formatHttpError("Gemini", response, details));
   }
 
   const data = await response.json();
@@ -271,4 +271,30 @@ async function safeResponseText(response) {
 function toUserError(error) {
   const message = error instanceof Error ? error.message : String(error);
   return message || "Something went wrong while summarizing.";
+}
+
+function formatHttpError(provider, response, details) {
+  if (response.status === 429) {
+    return `${provider} quota limit reached. Wait a bit and try again, use a different API key, enable billing/quota for the Google AI project, or configure a proxy endpoint.`;
+  }
+
+  if (response.status === 401 || response.status === 403) {
+    return `${provider} rejected the request. Check that your API key is valid and allowed to use the selected model.`;
+  }
+
+  const apiMessage = extractApiErrorMessage(details);
+  return `${provider} request failed with HTTP ${response.status}.${apiMessage ? ` ${apiMessage}` : ""}`;
+}
+
+function extractApiErrorMessage(details) {
+  if (!details) {
+    return "";
+  }
+
+  try {
+    const parsed = JSON.parse(details);
+    return String(parsed?.error?.message || "").slice(0, 220);
+  } catch {
+    return String(details).slice(0, 220);
+  }
 }
