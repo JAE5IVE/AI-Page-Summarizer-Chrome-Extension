@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "AI Page Summarizer",
+  "description": "Extracts readable page content, summarizes it with an AI endpoint, and can highlight key points in-page.",
+  "version": "1.0.0",
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "Summarize this page"
+  },
+  "background": {
+    "service_worker": "src/background/serviceWorker.js",
+    "type": "module"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ],
+  "icons": {
+    "16": "assets/icon16.png",
+    "32": "assets/icon32.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  }
+}

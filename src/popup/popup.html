@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Page Summarizer</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="popup-shell">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">AI Page Summarizer</p>
+          <h1 id="pageTitle">Current page</h1>
+        </div>
+        <button id="settingsToggle" class="icon-button" type="button" aria-label="Open settings" title="Settings">
+          <span aria-hidden="true">S</span>
+        </button>
+      </header>
+
+      <section id="settingsPanel" class="settings-panel" hidden>
+        <label>
+          Provider
+          <select id="provider">
+            <option value="gemini">Gemini REST</option>
+            <option value="proxy">Custom secure proxy</option>
+          </select>
+        </label>
+        <label id="geminiKeyField">
+          Gemini API key
+          <input id="geminiApiKey" type="password" autocomplete="off" placeholder="Stored locally, never committed">
+        </label>
+        <label id="geminiModelField">
+          Gemini model
+          <input id="geminiModel" type="text" spellcheck="false" placeholder="gemini-2.0-flash">
+        </label>
+        <label id="proxyEndpointField">
+          Proxy endpoint
+          <input id="proxyEndpoint" type="url" spellcheck="false" placeholder="https://your-domain.example/summarize">
+        </label>
+        <button id="saveSettings" class="secondary-button" type="button">Save settings</button>
+      </section>
+
+      <section class="controls" aria-label="Summary controls">
+        <label class="summary-style">
+          Length
+          <select id="summaryStyle">
+            <option value="standard">Standard</option>
+            <option value="brief">3 bullets</option>
+          </select>
+        </label>
+        <button id="summarizeButton" class="primary-button" type="button">Summarize Page</button>
+      </section>
+
+      <div id="status" class="status" role="status" aria-live="polite" hidden>
+        <span class="spinner" aria-hidden="true"></span>
+        <span id="statusText">Summarizing...</span>
+      </div>
+
+      <p id="errorMessage" class="error-message" role="alert" hidden></p>
+
+      <section id="summaryPanel" class="summary-panel" hidden>
+        <div class="summary-meta">
+          <span id="readingTime"></span>
+          <span id="wordCount"></span>
+          <span id="cacheState"></span>
+        </div>
+
+        <h2>Summary</h2>
+        <ul id="summaryList"></ul>
+
+        <h2>Key insights</h2>
+        <ul id="insightsList"></ul>
+
+        <div class="actions">
+          <button id="copyButton" class="secondary-button" type="button">Copy</button>
+          <button id="highlightButton" class="secondary-button" type="button">Highlight</button>
+          <button id="clearButton" class="ghost-button" type="button">Clear</button>
+        </div>
+      </section>
+    </main>
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>
