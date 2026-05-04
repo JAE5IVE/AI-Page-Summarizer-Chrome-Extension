@@ -28,6 +28,7 @@
           Provider
           <select id="provider">
             <option value="gemini">Gemini REST</option>
+            <option value="openrouter">OpenRouter</option>
             <option value="proxy">Custom secure proxy</option>
           </select>
         </label>
@@ -38,6 +39,14 @@
         <label id="geminiModelField">
           Gemini model
           <input id="geminiModel" type="text" spellcheck="false" placeholder="gemini-2.0-flash">
+        </label>
+        <label id="openRouterKeyField">
+          OpenRouter API key
+          <input id="openRouterApiKey" type="password" autocomplete="off" placeholder="Starts with sk-or-">
+        </label>
+        <label id="openRouterModelField">
+          OpenRouter model
+          <input id="openRouterModel" type="text" spellcheck="false" placeholder="openrouter/free">
         </label>
         <label id="proxyEndpointField">
           Proxy endpoint

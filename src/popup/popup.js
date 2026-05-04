@@ -6,9 +6,13 @@ const elements = {
   provider: document.querySelector("#provider"),
   geminiApiKey: document.querySelector("#geminiApiKey"),
   geminiModel: document.querySelector("#geminiModel"),
+  openRouterApiKey: document.querySelector("#openRouterApiKey"),
+  openRouterModel: document.querySelector("#openRouterModel"),
   proxyEndpoint: document.querySelector("#proxyEndpoint"),
   geminiKeyField: document.querySelector("#geminiKeyField"),
   geminiModelField: document.querySelector("#geminiModelField"),
+  openRouterKeyField: document.querySelector("#openRouterKeyField"),
+  openRouterModelField: document.querySelector("#openRouterModelField"),
   proxyEndpointField: document.querySelector("#proxyEndpointField"),
   saveSettings: document.querySelector("#saveSettings"),
   summaryStyle: document.querySelector("#summaryStyle"),
@@ -105,12 +109,16 @@ async function loadSettings() {
     provider: "gemini",
     geminiApiKey: "",
     geminiModel: "gemini-2.0-flash",
+    openRouterApiKey: "",
+    openRouterModel: "openrouter/free",
     proxyEndpoint: ""
   });
 
   elements.provider.value = settings.provider;
   elements.geminiApiKey.value = settings.geminiApiKey;
   elements.geminiModel.value = settings.geminiModel;
+  elements.openRouterApiKey.value = settings.openRouterApiKey;
+  elements.openRouterModel.value = settings.openRouterModel;
   elements.proxyEndpoint.value = settings.proxyEndpoint;
   updateProviderFields();
 }
@@ -124,6 +132,8 @@ async function saveSettings() {
     provider: elements.provider.value,
     geminiApiKey: elements.geminiApiKey.value.trim(),
     geminiModel: elements.geminiModel.value.trim() || "gemini-2.0-flash",
+    openRouterApiKey: elements.openRouterApiKey.value.trim(),
+    openRouterModel: elements.openRouterModel.value.trim() || "openrouter/free",
     proxyEndpoint: elements.proxyEndpoint.value.trim()
   });
   showStatus("Settings saved.", false);
@@ -146,9 +156,12 @@ async function requestProxyPermission(endpoint) {
 
 function updateProviderFields() {
   const isGemini = elements.provider.value === "gemini";
+  const isOpenRouter = elements.provider.value === "openrouter";
   elements.geminiKeyField.hidden = !isGemini;
   elements.geminiModelField.hidden = !isGemini;
-  elements.proxyEndpointField.hidden = isGemini;
+  elements.openRouterKeyField.hidden = !isOpenRouter;
+  elements.openRouterModelField.hidden = !isOpenRouter;
+  elements.proxyEndpointField.hidden = isGemini || isOpenRouter;
 }
 
 async function summarize(forceRefresh) {

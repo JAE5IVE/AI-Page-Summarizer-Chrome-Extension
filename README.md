@@ -25,7 +25,7 @@ This extension is intended for local installation and is not packaged for the Ch
 
 ## AI Setup
 
-The extension supports two integration modes.
+The extension supports three integration modes.
 
 ### Option 1: Gemini REST
 
@@ -39,6 +39,21 @@ The extension supports two integration modes.
 The key is stored in `chrome.storage.local` on your machine. It is not hardcoded in the repository and is not placed in the content script or popup request path. The background service worker makes the API request.
 
 ### Option 2: Custom Secure Proxy
+
+### Option 2: OpenRouter
+
+1. Create a free OpenRouter account.
+2. Go to `https://openrouter.ai/keys`.
+3. Create an API key.
+4. Open the extension popup.
+5. Click the settings button.
+6. Choose **OpenRouter**.
+7. Paste your API key and keep the default model `openrouter/free`.
+8. Save settings.
+
+OpenRouter's `openrouter/free` route selects from currently available free models. Free model availability and rate limits can change, so check OpenRouter if a request starts failing.
+
+### Option 3: Custom Secure Proxy
 
 For stronger production security, use a backend proxy endpoint. Choose **Custom secure proxy** and enter your endpoint URL.
 When you save the endpoint, Chrome asks for permission to access that specific origin.

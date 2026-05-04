@@ -87,6 +87,9 @@ async function callAiProvider(page, settings, options) {
   if (settings.provider === "proxy") {
     return callProxyProvider(page, settings, options);
   }
+  if (settings.provider === "openrouter") {
+    return callOpenRouterProvider(page, settings, options);
+  }
   return callGeminiProvider(page, settings, options);
 }
 
@@ -146,6 +149,48 @@ async function callGeminiProvider(page, settings, options) {
   const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!rawText) {
     throw new Error("The AI response was empty.");
+  }
+
+  return normalizeSummary(parseAiJson(rawText));
+}
+
+async function callOpenRouterProvider(page, settings, options) {
+  if (!settings.openRouterApiKey) {
+    throw new Error("Add an OpenRouter API key in settings before summarizing.");
+  }
+
+  const model = settings.openRouterModel || "openrouter/free";
+  const prompt = buildPrompt(page, options);
+
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${settings.openRouterApiKey}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": "https://github.com/JAE5IVE/AI-Page-Summarizer-Chrome-Extension",
+      "X-Title": "AI Page Summarizer Chrome Extension"
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.2,
+      response_format: { type: "json_object" }
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(formatHttpError("OpenRouter", response, await safeResponseText(response)));
+  }
+
+  const data = await response.json();
+  const rawText = data?.choices?.[0]?.message?.content;
+  if (!rawText) {
+    throw new Error("The OpenRouter response was empty.");
   }
 
   return normalizeSummary(parseAiJson(rawText));
@@ -212,6 +257,8 @@ async function getSettings() {
     provider: "gemini",
     geminiApiKey: "",
     geminiModel: "gemini-2.0-flash",
+    openRouterApiKey: "",
+    openRouterModel: "openrouter/free",
     proxyEndpoint: ""
   };
   const stored = await chrome.storage.local.get(defaults);
